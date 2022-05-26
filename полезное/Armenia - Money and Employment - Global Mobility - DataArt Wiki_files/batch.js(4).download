@@ -1,0 +1,532 @@
+WRMCB=function(e){var c=console;if(c&&c.log&&c.error){c.log('Error running batched script.');c.error(e);}}
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:likes', location = '/model/like.js' */
+define("confluence/ic/model/like",["backbone"],function(b){return b.Model.extend({initialize:function(a,c){if(!a)throw Error("Attributes is required");if(!a.username)throw Error("username is a required attribute");}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:likes', location = '/model/likes.js' */
+define("confluence/ic/model/likes",["ajs","underscore","backbone","confluence/ic/model/like","confluence/ic/likes/likes-manager"],function(d,g,e,h,c){return e.Collection.extend({model:h,url:function(){return d.contextPath()+"/rest/likes/1.0/content/"+this.contentId+"/likes"},initialize:function(a,b){g.bindAll(this,"_handleSaveSuccess","_handleDestroySuccess","_handleError");b=b||{};if(void 0===b.contentId)throw Error("content ID is required.");this.contentId=b.contentId;c.getLikes(b.contentId)&&this.reset(c.getLikes(b.contentId));
+this.listenTo(e,"ic:likes-received",this.updateLikes);this.bind("add",function(f){f.save(null,{success:this._handleSaveSuccess,error:this._handleError})});this.bind("remove",function(f){f.id="";f.destroy({success:this._handleDestroySuccess,error:this._handleError})});this.currentUserName=d.Meta.get("remote-user")},updateLikes:function(){this.reset(c.getLikes(this.contentId))},addUser:function(a){return this.add({username:a})},removeUser:function(a){return this.remove(this.getUserByName(a))},isLikedByUser:function(a){return!!this.getUserByName(a)},
+getUserByName:function(a){return this.findWhere({username:a})},toggleLike:function(){this.isLikedByUser(this.currentUserName)?this.removeUser(this.currentUserName):this.addUser(this.currentUserName)},_handleSaveSuccess:function(a){c.add(this.contentId,this.currentUserName)},_handleDestroySuccess:function(a){c.remove(this.contentId,this.currentUserName)},_handleError:function(a,b){this.updateLikes();405===b.status&&b.responseText?e.trigger("ic:error","This site is read-only. You can\u0027t make changes right now."):
+e.trigger("ic:error","Likes cannot be updated.")}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:confirm-dialog-view', location = 'view/confirm-dialog/confirm-dialog.soy' */
+// This file was automatically generated from confirm-dialog.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.confirmDialog = function(opt_data, opt_ignored) {
+  return '<strong class="ic-confirm-label">' + soy.$$escapeHtml(opt_data.label) + '</strong><div class="ic-confirm-message">' + soy.$$escapeHtml(opt_data.message) + '</div><div class="ic-confirm-buttons">' + aui.buttons.button({text: 'Delete', tagName: 'button', extraClasses: ['ic-action-delete-confirm', 'aui-button-compact']}) + aui.buttons.button({text: 'Cancel', tagName: 'button', type: 'link', extraClasses: ['ic-action-cancel-confirm', 'aui-button-compact']}) + '</div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.confirmDialog.soyTemplateName = 'Confluence.Templates.IC.confirmDialog';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:confirm-dialog-view', location = 'view/confirm-dialog/confirm-dialog.js' */
+define("confluence/ic/view/confirm-dialog",["backbone","underscore","jquery"],function(b,c,d){return b.View.extend({tagName:"div",className:"ic-confirm-container",initialize:function(a){this.$menuEl=a.$menuEl;this.$bodyEl=a.$bodyEl;this.$menuEl.addClass("ic-action-menu-active");this.render();c.bindAll(this,"clickOutside");this.$bodyEl.on("click",this.clickOutside)},events:{"click .ic-action-cancel-confirm":"cancel","click .ic-action-delete-confirm":"confirm"},template:Confluence.Templates.IC.confirmDialog,
+render:function(){this.$el.html(this.template(this.model.toJSON()));return this},clickOutside:function(a){d.contains(this.el,a.target)||this.el===a.target||this.cancel()},cancel:function(){this.destroy()},confirm:function(){this.trigger("ic:confirm");this.destroy()},destroy:function(){this.$bodyEl.off("click",this.clickOutside);this.$menuEl.removeClass("ic-action-menu-active");this.remove()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:common-resource', location = 'common/common.soy' */
+// This file was automatically generated from common.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.authorAvatar = function(opt_data, opt_ignored) {
+  return '' + ((opt_data.authorUserName == '') ? aui.avatar.avatar({size: opt_data.size, avatarImageUrl: opt_data.authorAvatarUrl, extraClasses: 'ic-author-avatar'}) : '<a data-username="' + soy.$$escapeHtml(opt_data.authorUserName) + '" href="' + soy.$$escapeHtml("") + '/display/~' + soy.$$escapeHtml(opt_data.authorUserName) + '" title="" data-user-hover-bound="true">' + aui.avatar.avatar({size: opt_data.size, avatarImageUrl: opt_data.authorAvatarUrl, extraClasses: 'ic-author-avatar'}) + '</a>');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.authorAvatar.soyTemplateName = 'Confluence.Templates.IC.authorAvatar';
+}
+
+
+Confluence.Templates.IC.sidebarHeading = function(opt_data, opt_ignored) {
+  return '<div class="ic-sidebar-heading"><div id="ic-nav-container">' + ((opt_data.createComment == true) ? Confluence.Templates.IC.navigation({disabled: true, showIndex: false}) : '') + '</div><div class="ic-right-toolbar">' + ((opt_data.showMenu) ? Confluence.Templates.IC.commentMenu(opt_data) : '') + aui.buttons.button({type: 'text', extraClasses: 'aui-button-text ic-action-hide', iconType: 'aui', iconClass: 'aui-icon-small aui-iconfont-close-dialog', text: '', extraAttributes: {title: 'Close sidebar (])'}}) + '</div></div><div class="ic-error"></div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.sidebarHeading.soyTemplateName = 'Confluence.Templates.IC.sidebarHeading';
+}
+
+
+Confluence.Templates.IC.commentHeader = function(opt_data, opt_ignored) {
+  return '<div class="ic-author">' + Confluence.Templates.IC.authorAvatar({authorUserName: opt_data.authorUserName, authorAvatarUrl: opt_data.authorAvatarUrl, size: 'small'}) + Confluence.Templates.User.usernameLink({canView: opt_data.authorUserName != '', username: opt_data.authorUserName, fullName: opt_data.authorDisplayName}) + '</div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.commentHeader.soyTemplateName = 'Confluence.Templates.IC.commentHeader';
+}
+
+
+Confluence.Templates.IC.timeLink = function(opt_data, opt_ignored) {
+  return '<a class="ic-date-link" title="' + soy.$$escapeHtml(opt_data.time) + '" href="' + soy.$$escapeHtml("" + opt_data.commentUrl) + '"><span>' + soy.$$escapeHtml(opt_data.time) + '</span></a>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.timeLink.soyTemplateName = 'Confluence.Templates.IC.timeLink';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:editor', location = 'editor/editor.js' */
+define("confluence/ic/editor/editor",["jquery","ajs","confluence/ic/util/utils","exports"],function(c,b,f,d){function h(){b.Confluence.EditorLoader.resourcesLoaded()||this.$form.find(".loading-container").spin("small")}function k(){b.Meta.set("content-type","comment");b.Meta.set("use-inline-tasks","false");b.Meta.set("min-editor-height",80)}function l(a){a.$form.find(".loading-container").hide();a.$form.find("#rte-button-publish").text("Save").removeAttr("title");
+a.$form.find("#toolbar-hints-draft-status").hide();this.hideCancelButton&&a.$form.find("#rte-button-cancel").hide();a.editor.on("PostProcess",m("PostProcess",a.editor));Confluence.Editor&&!Confluence.Editor.getContentType&&b.Confluence.QuickEdit.QuickEditPage.disable();Confluence.Editor.removeAllCancelHandlers();Confluence.Editor.removeAllSaveHandlers()}function m(a,e){var g=function(){tinymce.DOM.setStyle(tinymce.DOM.get(e.id+"_ifr"),"height","80px");e.execCommand("mceAutoResize",{forceExec:!0});
+e.off(a,g)};return g}d.init=function(a){return b.Confluence.QuickEdit.activateEditor({preActivate:h,preInitialise:k,postInitialise:c.proxy(l,a),toolbar:!1,$container:a.container,$form:a.form,saveHandler:a.saveHandler,cancelHandler:a.cancelHandler,fetchContent:a.fetchContent(),closeAnyExistingEditor:!0,postDeactivate:a.postDeactivate,plugins:f.getSupportedRtePlugins(),excludePlugins:f.getUnsupportedRtePlugins()})};d.remove=function(){return b.Rte&&b.Rte.getEditor()?b.Confluence.QuickEdit.deactivateEditor():
+c.Deferred().resolve()};d.getContent=function(){return b.Rte.Content.getHtml()};d.setEditorBusy=function(a){a?c(".ic-sidebar #rte-spinner").spin():c(".ic-sidebar #rte-spinner").spinStop();c("#rte-button-publish").prop("disabled",a)};d.isEmptyContent=function(a){return""===a}});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:create-comment-view', location = 'view/create-comment/create-comment.soy' */
+// This file was automatically generated from create-comment.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.createComment = function(opt_data, opt_ignored) {
+  return '<div class="ic-comment-container">' + ((opt_data.type == 'topLevel' || opt_data.type == 'pageComment') ? Confluence.Templates.IC.sidebarHeading({showMenu: false, createComment: true, darkFeatures: opt_data.darkFeatures}) : '') + Confluence.Templates.IC.commentForm(opt_data) + '</div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.createComment.soyTemplateName = 'Confluence.Templates.IC.createComment';
+}
+
+
+Confluence.Templates.IC.commentForm = function(opt_data, opt_ignored) {
+  var output = '<div class="ic-container ic-create-comment">' + Confluence.Templates.IC.commentHeader(opt_data) + '<div class="ic-body"><form class="aui" action="">';
+  if (! opt_data.darkFeatures.RICH_TEXT_EDITOR) {
+    var placeholder__soy27 = '' + ((opt_data.type == 'reply') ? soy.$$escapeHtml('Reply') : soy.$$escapeHtml('write a comment...'));
+    output += '<textarea class="textarea ic-textarea" name="body" placeholder="' + soy.$$escapeHtml(placeholder__soy27) + '">' + soy.$$escapeHtml(opt_data.text) + '</textarea><div class="ic-actions"><ul><li>' + aui.buttons.button({tagName: 'button', text: 'Save', type: 'link', extraClasses: 'ic-action-save', isDisabled: true}) + '</li>' + ((opt_data.type != 'topLevel') ? '<li>' + aui.buttons.button({text: 'Cancel', type: 'link', extraClasses: 'ic-action-discard'}) + '</li>' : '') + '</ul></div>';
+  } else {
+    output += '<div class="loading-container"></div>';
+  }
+  output += '</form></div></div>';
+  return output;
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.commentForm.soyTemplateName = 'Confluence.Templates.IC.commentForm';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:create-comment-view', location = 'view/create-comment/create-comment.js' */
+define("confluence/ic/view/create-comment","underscore jquery backbone ajs confluence/ic/model/comment confluence/ic/model/reply confluence/ic/util/utils confluence/ic/editor/editor".split(" "),function(e,k,d,b,m,n,f,l){return d.View.extend({tagName:"div",className:"ic-create-comment-view",events:{"click .ic-action-save":"saveComment","click .ic-action-discard":"discardComment","keyup .ic-textarea":"onInput","focus .ic-textarea":"onFocus","click #show-page-comment":"showPageComment"},template:Confluence.Templates.IC.createComment,
+initialize:function(a){this.selection=a.selection;this.type=a.type;this.warningData=a.warningData;this.onFinished=a.onFinished||function(){};this.commentText=a.commentText||"";this.stopFocus=a.stopFocus;this.serializedHighlights=a.serializedHighlights;if("edit"===a.type||"reply"===a.type)this.template=Confluence.Templates.IC.commentForm,d.trigger("ic:discard-edit"),this.listenTo(d,"ic:discard-edit",this.discardComment)},finish:function(){this.onFinished();b.trigger("ic-jim-async-supported")},render:function(){var a=
+this._getAuthorObject();a=e.extend({},a,{type:this.type,text:this.commentText,showMenu:!1},{darkFeatures:f.getDarkFeatures()});this.$el.html(this.template(a));f.getDarkFeatures().RICH_TEXT_EDITOR?this.renderEditor():this.stopFocus||setTimeout(e.bind(this.focusEditor,this),1);f.addSidebarHeadingTooltip(this);return this},onInput:function(a){a=""!==this.$(a.target).val().trim();this._saveDisable(!a)},onFocus:function(){if("edit"===this.type){var a=this.$(".textarea");f.moveCaretToEnd(a[0]);this._saveDisable(""===
+a.text())}},saveComment:function(a){a.preventDefault();this._isValid()&&(this._disableForm(),"reply"===this.type?this._addReply():"edit"===this.type?this._saveEdit():this._addComment())},_getAuthorObject:function(){if("edit"===this.type){var a=this.model.get("authorUserName");var c=this.model.get("authorAvatarUrl");var g=this.model.get("authorDisplayName")}else a=b.Meta.get("remote-user"),c=f.getAuthorAvatarUrl(),g=f.getAuthorDisplayName();return{authorUserName:a,authorAvatarUrl:c,authorDisplayName:g}},
+_saveEdit:function(){var a=this._getContent(),c={wait:!0,beforeSend:e.bind(this.beforeSendAjax,this),success:e.bind(this._onSaveSuccess,this),error:e.bind(this._showEditError,this)};this.model.save({body:a},c)},_showEditError:function(a,c){if(!this.showCaptchaError(c)){switch(c.status){case 401:a="You don\u0027t have permission to edit this comment.";break;case 405:if(c.responseText&&"READ_ONLY"===JSON.parse(c.responseText).reason){a="This site is read-only. You can\u0027t make changes right now.";break}case 400:if(c.responseText&&
+0<=c.responseText.indexOf("Unsupported character found in content: ")){a=c.responseText.split("Unsupported character found in content: ")[1];a=b.format("We can\u0027\u0027t save your inline comment because the {0} character isn\u0027\u0027t supported by your database.\u003cbr\u003e\u003cbr\u003eRemove this character or use a Confluence symbol or emoticon instead. \u003ca href = \u0022https://confluence.atlassian.com/x/BYfsNg\u0022 target=\u0022_blank\u0022\u003eLearn more\u003c/a\u003e",a);break}default:a="We can\u0027t save your edit. The comment might have been deleted."}this._triggerError(a)}},_triggerError:function(a,c){d.trigger("ic:error",a,c);this._disableForm(!1)},_addReply:function(){(new n({body:this._getContent(),commentId:this.model.get("id"),hasDeletePermission:!!b.Meta.get("remote-user")||
+this.model.get("hasDeletePermission")})).save(null,{beforeSend:e.bind(this.beforeSendAjax,this),success:e.bind(this._onSaveSuccess,this),error:e.bind(function(a,c){this.showCaptchaError(c)||(405===c.status&&c.responseText?"READ_ONLY"===JSON.parse(c.responseText).reason&&d.trigger("ic:error","This site is read-only. You can\u0027t make changes right now."):400===c.status&&c.responseText?(a=c.responseText.split("Unsupported character found in content: ")[1],this._triggerError(b.format("We can\u0027\u0027t save your inline comment because the {0} character isn\u0027\u0027t supported by your database.\u003cbr\u003e\u003cbr\u003eRemove this character or use a Confluence symbol or emoticon instead. \u003ca href = \u0022https://confluence.atlassian.com/x/BYfsNg\u0022 target=\u0022_blank\u0022\u003eLearn more\u003c/a\u003e",
+a))):this._triggerError("Could not save the reply"))},this)})},_addComment:function(){var a=new m({originalSelection:this.selection.searchText.selectedText.replace(/\n/g,""),body:this._getContent(),matchIndex:this.selection.searchText.index,numMatches:this.selection.searchText.numMatches,serializedHighlights:this.serializedHighlights}),c={callback:this.bindPageReloadLink};a.save(null,{beforeSend:e.bind(this.beforeSendAjax,this),success:e.bind(this._onSaveSuccess,this),
+error:e.bind(function(g,h){if(!this.showCaptchaError(h))switch(h.status){case 405:this._triggerError("This site is read-only. You can\u0027t make changes right now.");break;case 409:this._triggerError(b.format("Page content is out of date, please {0}refresh{1} and try again.",'\x3ca href\x3d"#" class\x3d"ic-reload-page"\x3e',"\x3c/a\x3e"),c);break;case 412:b.trigger("analytics",{name:"confluence.comment.inline.cannot.create"});this._triggerError("We can\u0027t add your inline comment; the section you highlighted may contain a macro or user mention. Try highlighting plain text.");break;case 400:if(h.responseText&&
+0<=h.responseText.indexOf("Unsupported character found in content: ")){g=h.responseText.split("Unsupported character found in content: ")[1];this._triggerError(b.format("We can\u0027\u0027t save your inline comment because the {0} character isn\u0027\u0027t supported by your database.\u003cbr\u003e\u003cbr\u003eRemove this character or use a Confluence symbol or emoticon instead. \u003ca href = \u0022https://confluence.atlassian.com/x/BYfsNg\u0022 target=\u0022_blank\u0022\u003eLearn more\u003c/a\u003e",g));break}default:this._triggerError("Could not save the comment")}},this)})},_isValid:function(){return l.isEmptyContent(k.trim(this._getContent()))?(d.trigger("ic:error","You cannot save an empty comment."),!1):
+!0},_onSaveSuccess:function(a){switch(this.type){case "topLevel":a.set("hasDeletePermission",!0);d.trigger("ic:persist",a);d.trigger("ic:view",a,void 0,{ignoreConfirmDialog:!0});break;case "reply":this.model.replies.push(a);d.trigger("ic:reply:persist",a);this.finish();break;case "edit":d.trigger("ic:edit"),this.finish()}},_setEditorIsNotDirty:function(){b.Rte.getEditor()&&(b.Rte.getEditor().isNotDirty=1)},_disableForm:function(a){void 0===a&&(a=!0);this._saveDisable(a);f.getDarkFeatures().RICH_TEXT_EDITOR||
+this.$(".ic-action-discard,.ic-textarea").prop("disabled",a).attr("aria-disabled",a)},_saveDisable:function(a){f.getDarkFeatures().RICH_TEXT_EDITOR?(l.setEditorBusy(a),k("#rte-button-cancel")[0].disabled=a):this.$(".ic-action-save").prop("disabled",a).attr("aria-disabled",a)},renderEditor:function(){var a=this.$(".ic-body"),c=this.commentText,g=b.Confluence.QuickEdit.QuickComment;return l.init({container:a,form:a.find("form.aui"),saveHandler:"pageComment"===this.type?g.createSaveHandler(e.bind(this._successCreatePageComment,
+this),g.saveCommentErrorHandler):e.bind(this.saveComment,this),cancelHandler:e.bind(this.discardComment,this),fetchContent:function(){var h=new k.Deferred;h.resolve({editorContent:c});return h},postDeactivate:e.bind(function(){d.trigger("ic:clearError");this.finish()},this),hideCancelButton:"topLevel"===this.type}).done(e.bind(this.renderEditorCompleted,this)).fail(e.bind(this.renderEditorFail,this))},showPageComment:function(a){a=k(a.target).data("comment-id");a=k("#comment-"+a);a.addClass("focused");
+a.scrollToElement()},_successCreatePageComment:function(a){Confluence.CommentDisplayManager.addComment(f.getCurrentUserInfo(),a,!1,!1,!0);b.trigger("page.commentAddedOrUpdated",{commentId:a.id});this._setEditorIsNotDirty();f.getDarkFeatures().RICH_TEXT_EDITOR&&(this.keepSidebar=!0,l.remove());this.$el.html(Confluence.Templates.IC.pageComment({commentId:a.id}));f.addSidebarHeadingTooltip(this)},renderEditorCompleted:function(){d.trigger("ic:clearError");if("topLevel"===this.type||"pageComment"===this.type)if(this.$("#rte-button-cancel").hide(),
+this.warningData){switch(this.warningData.type){case "mention":d.trigger("ic:error","We can\u0027t add an inline comment here because the selected text includes a mention.  We\u0027ll add it as a page comment instead.");break;case "internalLink":d.trigger("ic:error","We can\u0027t add an inline comment because the selected text includes a relative link. We\u0027ll add it as a page comment instead.");break;case "dateLozenge":d.trigger("ic:error","We can\u0027t add an inline comment here because the selected text includes a date lozenge.");break;case "unsupportedMacro":if(b.MacroBrowser)var a=b.MacroBrowser.getMacroMetadata(this.warningData.macro).title;a?d.trigger("ic:error",b.format("We can\u0027\u0027t add an inline comment because the selected text includes the {0} macro. We\u0027\u0027ll add it as a page comment instead.",
+a)):d.trigger("ic:error","We can\u0027t add an inline comment to this content. We\u0027ll add it as a page comment instead.")}this.focusEditor()}else"pageComment"===this.type&&(d.trigger("ic:error","We can\u0027t add an inline comment to this content. We\u0027ll add it as a page comment instead."),this.focusEditor());this.captchaManager=new b.Confluence.QuickEditCaptchaManager(b.Confluence.EditorLoader.getEditorForm())},renderEditorFail:function(a){var c={closeable:!0,callback:this.bindPageReloadLink};switch(this.type){case "pageComment":this._setEditorIsNotDirty();break;case "topLevel":this.$(".loading-container").hide();
+this.$(".ic-create-comment").hide();c.closeable=!1;break;case "edit":case "reply":this.finish()}switch(a){case "READ_ONLY":c.closeable=!1;a="This site is read-only. You can\u0027t make changes right now.";break;default:a=b.format("The editor didn\u0027\u0027t load properly. Please {0}reload the page{1} to try again.",'\x3ca href\x3d"#" class\x3d"ic-reload-page"\x3e',"\x3c/a\x3e")}d.trigger("ic:error",a,c);d.trigger("ic:editor:load:fail")},bindPageReloadLink:function(){k(".ic-error").off("click",".ic-reload-page").on("click",".ic-reload-page",function(){window.location.reload();
+return!1})},discardComment:function(a){a&&a.preventDefault();d.trigger("ic:clearError");this.finish()},_getContent:function(){return f.getDarkFeatures().RICH_TEXT_EDITOR?l.getContent():this.$("textarea").val()},focusEditor:function(){if(f.getDarkFeatures().RICH_TEXT_EDITOR)if("pageComment"===this.type){var a=k(b.Rte.getEditor()&&b.Rte.getEditor().getBody()).find("div")[0];b.Rte.getEditor().selection.select(a,1);b.Rte.getEditor().selection.collapse(1);a.focus()}else b.Rte.getEditor()&&b.Rte.getEditor().focus();
+else this.$(".ic-textarea:visible").focus()},destroy:function(){f.getDarkFeatures().RICH_TEXT_EDITOR&&l.remove();this.remove()},beforeSendAjax:function(a){var c=this.captchaManager.getCaptchaData();c&&c.id&&(a.setRequestHeader("X-Atlassian-Captcha-Id",c.id),a.setRequestHeader("X-Atlassian-Captcha-Response",c.response))},showCaptchaError:function(a){return 404===a.status&&a.responseText&&-1!=a.responseText.search(/captcha/i)?(this.captchaManager.refreshCaptcha(),this._triggerError("The typed word did not match the text in the picture."),
+!0):!1}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:display-reply-view', location = 'view/display-reply/display-reply.soy' */
+// This file was automatically generated from display-reply.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.renderReply = function(opt_data, opt_ignored) {
+  return Confluence.Templates.IC.commentHeader(opt_data) + '<div class="ic-body wiki-content"><div class="ic-content ic-reply-content">' + soy.$$filterNoAutoescape(opt_data.body) + '</div></div>' + ((opt_data.darkFeatures.INLINE_COMMENTS && ! opt_data.resolved) ? Confluence.Templates.IC.renderReplyActions(opt_data) : '<div>' + Confluence.Templates.IC.timeLink({time: opt_data.lastModificationDate, commentUrl: opt_data.commentDateUrl}) + '</div>');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.renderReply.soyTemplateName = 'Confluence.Templates.IC.renderReply';
+}
+
+
+Confluence.Templates.IC.renderReplyActions = function(opt_data, opt_ignored) {
+  return '<div class="ic-actions"><ul>' + ((opt_data.hasDeletePermission) ? '<li>' + aui.buttons.button({text: 'Delete', type: 'link', extraClasses: 'ic-action-delete-reply'}) + '</li>' : '') + ((opt_data.hasEditPermission) ? '<li>' + aui.buttons.button({text: 'Edit', type: 'link', extraClasses: 'ic-action-edit-reply'}) + '</li>' : '') + '<li class="ic-action-like-reply"></li><li class="ic-date">' + Confluence.Templates.IC.timeLink({time: opt_data.lastModificationDate, commentUrl: opt_data.commentDateUrl}) + '</li></ul></div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.renderReplyActions.soyTemplateName = 'Confluence.Templates.IC.renderReplyActions';
+}
+
+
+Confluence.Templates.IC.showmoreReply = function(opt_data, opt_ignored) {
+  return '<div id="ic-showmore-container"><div class="ic-decor-line"></div><div class="ic-decor-line"></div><div class="ic-collapse-decor-center"><span>' + soy.$$escapeHtml(AJS.format('{0} more replies',opt_data.totalReplies)) + '</span></div></div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.showmoreReply.soyTemplateName = 'Confluence.Templates.IC.showmoreReply';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:display-reply-view', location = 'view/display-reply/display-reply.js' */
+define("confluence/ic/view/display-reply","jquery ajs underscore backbone confluence/ic/util/utils confluence/ic/view/create-comment confluence/ic/view/likes".split(" "),function(g,c,f,d,e,h,k){return d.View.extend({tagName:"div",className:"ic-display-reply",template:Confluence.Templates.IC.renderReply,events:{"click .ic-action-edit-reply":"editReply","click .ic-action-delete-reply":"confirmDelete"},initialize:function(){f.bindAll(this,"onEditCallback");this.$el.attr("data-comment-id",this.model.get("id"))},
+render:function(){var a=f.extend(this.model.toJSON(),{resolved:this.options.resolved,darkFeatures:e.getDarkFeatures()});"READ_ONLY"===c.Meta.get("render-mode")&&(a.hasEditPermission=!1,a.hasDeletePermission=!1);a=this.template(a);this.$el.html(a);this._renderLikes();return this},_renderLikes:function(){this.likesView&&this.likesView.remove();this.likesView=(new k({contentId:this.model.id})).render();this.likesView.$el.is(":empty")?this.$(".ic-action-like-reply").remove():this.$(".ic-action-like-reply").html(this.likesView.el)},
+editReply:function(a){var b=this;e.confirmProcess()?e.getEditorFormat(this.model.get("id")).done(function(l){b.editView=new h({model:b.model,type:"edit",selection:{},onFinished:b.onEditCallback,commentText:l});b.$el.html(b.editView.$el);b.editView.render()}).fail(function(){d.trigger("ic:error","We can\u0027t edit this reply. The reply might have been deleted.")}):a&&a.currentTarget.blur()},onEditCallback:function(){this.editView&&this.editView.destroy();this.editView=null;this.render()},deleteFail:function(a,
+b){switch(b.status){case 401:d.trigger("ic:error","You don\u0027t have permission to delete this comment.");break;case 405:if(b.responseText&&"READ_ONLY"===JSON.parse(b.responseText).reason){d.trigger("ic:error","This site is read-only. You can\u0027t make changes right now.");break}default:d.trigger("ic:error","Could not complete your request.")}},confirmDelete:function(a){!0===window.confirm("Are you sure you want to delete this reply?")&&this.deleteReply(a)},deleteReply:function(a){g(a.target).attr("aria-disabled",
+!0).prop("disabled",!0);this.model.destroy({wait:!0,error:this.deleteFail,success:function(){d.trigger("ic:reply:delete")}})},destroy:function(){this.likesView&&this.likesView.remove();this.editView&&this.editView.destroy();this.remove()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:reply-list-view', location = 'view/reply-list/reply-list.js' */
+define("confluence/ic/view/reply-list","jquery ajs underscore backbone confluence/ic/view/display-reply confluence/ic/util/utils".split(" "),function(f,b,g,c,d,e){return c.View.extend({tagName:"div",className:"ic-replies",events:{"click #ic-showmore-container":"forceShowAllReplies"},initialize:function(a){if(!a.commentModel)throw Error("Inline Comment Model should be passed as a parameter when init ReplyListView","ReplyListView");this.replyViews=[];this.collection=a.commentModel.replies;this.source=
+a.source;this.listenTo(this.collection,"add remove",this.render);!0!==this.collection.isFetched&&(this.listenToOnce(this.collection,"sync",this.fetchComplete),this.collection.fetch({reset:!0}));this.expandReplies=!1;this.COMMENT_NUMBER_TO_COLLAPSE=4},fetchComplete:function(){this.collection.isFetched=!0;this.render();e.resizeContentAfterLoadingImages(this.$el)},render:function(a){if(!0!==this.collection.isFetched)return this;if(a&&this.collection.last()===a)this.appendReply(a);else return this.cleanUpReplyViews(),
+this.$el.empty(),this.collection.length>this.COMMENT_NUMBER_TO_COLLAPSE&&!1===this.expandReplies&&"permalink"!==this.source&&this.options.commentModel&&!this.options.commentModel.isResolved()?this.renderCollapsibleReplies():this.renderFullReplies(),this.trigger("ic:reply-rendered",this.options.commentModel),this._hightlightReply(),b.trigger("ic-jim-async-supported"),this},renderFullReplies:function(){this.collection.each(function(a){this.appendReply(a)},this)},forceShowAllReplies:function(){this.expandReplies=
+!0;this.render()},renderCollapsibleReplies:function(){this.renderExpendButton();var a=this.collection.last();this.appendReply(a)},appendReply:function(a){a=this.createReplyView(a);this.replyViews.push(a);this.$el.append(a.render().el)},renderExpendButton:function(){this.$el.append(Confluence.Templates.IC.showmoreReply({totalReplies:this.collection.length-1}))},createReplyView:function(a){return new d({model:a,resolved:this.options.commentModel.isResolved()})},_hightlightReply:function(){if("permalink"===
+this.source){var a=window.location.search.match(/(focusedCommentId|replyToComment)=(\d+)/);null!=a&&(a=parseInt(a[2],10))&&0!==a&&this.$("[data-comment-id\x3d"+a+"]").addClass("ic-comment-reply-highlight")}},cleanUpReplyViews:function(){var a;for(a=0;a<this.replyViews.length;a++)this.replyViews[a].destroy(),this.replyViews[a]=null;this.replyViews=[]},destroy:function(){this.cleanUpReplyViews();this.remove()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:navigation-view', location = 'view/navigation/navigation.soy' */
+// This file was automatically generated from navigation.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.navigation = function(opt_data, opt_ignored) {
+  return '' + aui.buttons.button({type: 'text', id: 'ic-nav-next', extraClasses: 'aui-button-text', iconType: 'aui', iconClass: 'aui-icon-small aui-iconfont-arrow-down', text: '', isDisabled: opt_data.disabled, extraAttributes: {tabIndex: opt_data.disabled ? '' : 0, title: 'Next comment (N)'}}) + aui.buttons.button({type: 'text', id: 'ic-nav-previous', extraClasses: 'aui-button-text', iconType: 'aui', iconClass: 'aui-icon-small aui-iconfont-arrow-up', text: '', isDisabled: opt_data.disabled, extraAttributes: {tabIndex: opt_data.disabled ? '' : 0, title: 'Previous comment (P)'}}) + ((opt_data.showIndex) ? '<span class="ic-nav-x-out-of-y">' + soy.$$escapeHtml(AJS.format('{0} of {1}',opt_data.index,opt_data.size)) + '</span>' : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.navigation.soyTemplateName = 'Confluence.Templates.IC.navigation';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:navigation-view', location = 'view/navigation/navigation.js' */
+define("confluence/ic/view/navigation",["backbone"],function(a){return a.View.extend({tagName:"div",events:{"click #ic-nav-previous":"showPrevious","click #ic-nav-next":"showNext"},template:Confluence.Templates.IC.navigation,initialize:function(){this.collection=this.model.collection;this.listenTo(this.collection,"change:resolveProperties",this.onResolveToggle);this.disabled=1>=this.collection.getCommentsOnPageCount();this.listenTo(a,"ic:show-previous",this.showPrevious);this.listenTo(a,"ic:show-next",
+this.showNext)},render:function(){this.$el.html(this.template({disabled:this.disabled,showIndex:!(this.model.isResolved()||this.model.get("deleted")),index:this.collection.getActiveIndexWithinPageComments()+1,size:this.collection.getCommentsOnPageCount()}));return this},onResolveToggle:function(){this.disabled=1>=this.collection.getCommentsOnPageCount();this.render()},showPrevious:function(){if(!this.disabled){var b=this.collection.getPrevCommentOnPage();null!=b&&a.trigger("ic:view",b,"nav")}},showNext:function(){if(!this.disabled){var b=
+this.collection.getNextCommentOnPage();null!=b&&a.trigger("ic:view",b,"nav")}}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:likes-view', location = 'view/likes/likes.soy' */
+// This file was automatically generated from likes.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.likes = function(opt_data, opt_ignored) {
+  return '' + ((opt_data.showLikeButton) ? aui.buttons.button({text: opt_data.isLikedByUser ? 'Unlike' : 'Like', type: 'link', extraClasses: 'ic-like-button'}) : '') + ((opt_data.likesCount > 0) ? '<span class="ic-like-summary"><span class="ic-small-like-icon"></span><a class="ic-likes-count" data-content-id="' + soy.$$escapeHtml(opt_data.contentId) + '"><span class="ic-like-summary">' + soy.$$escapeHtml(opt_data.likesCount) + '</span></a></span>' : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.likes.soyTemplateName = 'Confluence.Templates.IC.likes';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:likes-view', location = 'view/likes/likes.js' */
+define("confluence/ic/view/likes",["backbone","ajs","confluence/ic/model/likes","confluence/ic/likes/likes-manager"],function(c,b,d,e){return c.View.extend({className:"ic-likes",events:{"click .ic-like-button":"toggleLike","click .ic-likes-count":function(a){Confluence.Likes.showLikeUsers&&Confluence.Likes.showLikeUsers.apply(a.currentTarget,[a])}},initialize:function(a){this.collection=new d(null,{contentId:a.contentId});this.listenTo(this.collection,"add remove reset",this.render);this.currentUserName=
+b.Meta.get("remote-user")||"";this.showLikeButton=void 0===a.showLikeButton?!0:a.showLikeButton},render:function(){this.$el.empty();if(e.isLikable()){var a=""!==this.currentUserName&&!1!==b.Meta.get("remote-user-has-licensed-access"),f=this.collection.length,g=this.collection.isLikedByUser(this.currentUserName);this.showLikeButton="READ_ONLY"!==b.Meta.get("render-mode");a=Confluence.Templates.IC.likes({showLikeButton:this.showLikeButton&&a,isLikedByUser:g,likesCount:f,contentId:this.collection.contentId});
+this.$el.html(a)}return this},toggleLike:function(){this.collection.toggleLike()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:likes-view', location = 'view/likes/likes-manager.js' */
+define("confluence/ic/likes/likes-manager",["underscore"],function(c){return{init:function(a){this.likesCache=c.clone(a)||{}},getLikes:function(a){return this.likesCache&&this.likesCache[a]?c.map(this.likesCache[a].likes,function(b){return{username:b.user.name}}):null},add:function(a,b){this.likesCache[a]||(this.likesCache[a]={likes:[]});this.likesCache[a].likes.push({user:{name:b}})},remove:function(a,b){if(this.likesCache[a]&&this.likesCache[a].likes){var e=c.reject(this.likesCache[a].likes,function(d){return d.user.name===
+b});this.likesCache[a].likes=e}},isLikable:function(){return void 0!==this.likesCache}}});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:display-comment-view', location = 'view/display-comment/display-comment.soy' */
+// This file was automatically generated from display-comment.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.displayComment = function(opt_data, opt_ignored) {
+  return '<div class="ic-comment-container">' + Confluence.Templates.IC.sidebarHeading({authorUserName: opt_data.authorUserName, hasDeletePermission: opt_data.hasDeletePermission, hasResolvePermission: opt_data.hasResolvePermission, hasEditPermission: opt_data.hasEditPermission, hasReplyPermission: opt_data.hasReplyPermission, showMenu: opt_data.showMenu && ! opt_data.resolveProperties.resolved, darkFeatures: opt_data.darkFeatures}) + ((opt_data.resolveProperties.resolved) ? Confluence.Templates.IC.resolvedMask(null) : Confluence.Templates.IC.comment(opt_data)) + '</div>' + ((! opt_data.resolveProperties.resolved) ? '<div class="ic-list"></div><div class="ic-reply-container">' + ((opt_data.darkFeatures.INLINE_COMMENTS && opt_data.hasReplyPermission) ? '<div class="ic-reply-placeholder">' + Confluence.Templates.IC.commentHeader({authorUserName: opt_data.currentAuthorUserName, authorAvatarUrl: opt_data.currentAuthorAvatarUrl, authorDisplayName: opt_data.currentAuthorDisplayName}) + '<div class="ic-body"><form class="aui"><textarea class="textarea ic-textarea" name="body" placeholder="' + soy.$$escapeHtml('Reply') + '"></textarea></form></div></div>' : '') + '</div>' : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.displayComment.soyTemplateName = 'Confluence.Templates.IC.displayComment';
+}
+
+
+Confluence.Templates.IC.deleteComment = function(opt_data, opt_ignored) {
+  return '<div class="ic-comment-container ic-deleted">' + Confluence.Templates.IC.sidebarHeading({createComment: false, showMenu: false}) + '<div class="ic-delete-comment-view"><h2><span class="aui-icon ic-delete-image line">::before</span>' + soy.$$escapeHtml('Deleted') + '</h2></div></div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.deleteComment.soyTemplateName = 'Confluence.Templates.IC.deleteComment';
+}
+
+
+Confluence.Templates.IC.comment = function(opt_data, opt_ignored) {
+  return '<div data-comment-id="' + soy.$$escapeHtml(opt_data.id) + '" class="ic-container ic-display-comment">' + Confluence.Templates.IC.commentHeader(opt_data) + '<div class="ic-body wiki-content"><div class="ic-content">' + ((opt_data.resolveProperties.resolved) ? '<blockquote><span class="ic-resolved-marker">' + soy.$$escapeHtml(opt_data.originalSelection) + '</span></blockquote>' : '') + soy.$$filterNoAutoescape(opt_data.body) + '</div></div>' + ((opt_data.resolveProperties.resolved) ? Confluence.Templates.IC.renderResolvedActions(opt_data) : Confluence.Templates.IC.renderActions(opt_data)) + '</div>' + ((! opt_data.resolveProperties.resolved && opt_data.resolveProperties.resolvedTime > 0 && opt_data.resolveProperties.resolvedUser) ? '<div class="ic-unresolved-message">' + soy.$$escapeHtml(AJS.format('Reopened by {0} {1}',opt_data.resolveProperties.resolvedUser,opt_data.resolveProperties.resolvedFriendlyDate)) + '</div>' : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.comment.soyTemplateName = 'Confluence.Templates.IC.comment';
+}
+
+
+Confluence.Templates.IC.commentMenu = function(opt_data, opt_ignored) {
+  return '' + ((opt_data.darkFeatures.INLINE_COMMENTS && (opt_data.hasDeletePermission || opt_data.hasReplyPermission || opt_data.hasResolvePermission && opt_data.darkFeatures.RESOLVED_INLINE_COMMENTS)) ? aui.buttons.button({type: 'subtle', extraClasses: 'aui-button-compact aui-dropdown2-trigger-arrowless aui-style-default ic-action-menu', iconType: 'aui', iconClass: 'aui-icon-small aui-iconfont-more', text: '', dropdown2Target: 'ic-menu-items'}) + aui.dropdown2.contents({id: 'ic-menu-items', extraClasses: 'aui-style-default', content: '<ul class="aui-list-truncate">' + ((opt_data.hasResolvePermission && opt_data.darkFeatures.RESOLVED_INLINE_COMMENTS) ? '<li class="ic-action-resolve"><a href="#">' + soy.$$escapeHtml('Resolve') + '</a></li>' : '') + ((opt_data.hasReplyPermission) ? '<li class="ic-action-reply"><a href="#">' + soy.$$escapeHtml('Reply') + '</a></li>' : '') + ((opt_data.hasEditPermission) ? '<li class="ic-action-edit"><a href="#">' + soy.$$escapeHtml('Edit') + '</a></li>' : '') + ((opt_data.hasDeletePermission) ? '<li class="ic-action-delete"><a href="#">' + soy.$$escapeHtml('Delete') + '</a></li>' : '') + '</ul>'}) : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.commentMenu.soyTemplateName = 'Confluence.Templates.IC.commentMenu';
+}
+
+
+Confluence.Templates.IC.renderResolvedActions = function(opt_data, opt_ignored) {
+  return '' + ((opt_data.darkFeatures.INLINE_COMMENTS) ? '<div class="ic-actions"><ul class="aui-list-truncate">' + ((opt_data.hasResolvePermission && ! opt_data.isDangling) ? '<li>' + aui.buttons.button({text: 'Reopen', type: 'link', extraClasses: 'ic-action-unresolve'}) + '</li>' : '') + '<li class="hidden">' + aui.buttons.button({type: 'link', extraClasses: 'ic-action-show-reply'}) + '</li>' + ((opt_data.hasReply) ? '' : '') + ((opt_data.resolveProperties.resolvedTime > 0) ? '<li class="ic-resolved-message">' + aui.icons.icon({useIconFont: true, size: 'small', icon: 'success'}) + '  <span>' + Confluence.Templates.IC.timeLink({time: '' + ((opt_data.isDangling && opt_data.resolveProperties.resolvedByDangling) ? soy.$$filterNoAutoescape(AJS.format('Resolved because the text was deleted by {0} {1}',opt_data.resolveProperties.resolvedUser,opt_data.resolveProperties.resolvedFriendlyDate)) : soy.$$filterNoAutoescape(AJS.format('Resolved by {0} {1}',opt_data.resolveProperties.resolvedUser,opt_data.resolveProperties.resolvedFriendlyDate))), commentUrl: opt_data.commentDateUrl}) + '</span></li>' : '') + '</ul></div>' : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.renderResolvedActions.soyTemplateName = 'Confluence.Templates.IC.renderResolvedActions';
+}
+
+
+Confluence.Templates.IC.renderActions = function(opt_data, opt_ignored) {
+  return '' + ((opt_data.darkFeatures.INLINE_COMMENTS) ? '<div class="ic-actions"><ul class="aui-list-truncate">' + ((opt_data.hasResolvePermission && opt_data.darkFeatures.RESOLVED_INLINE_COMMENTS) ? '<li>' + aui.buttons.button({text: 'Resolve', type: 'link', extraClasses: 'ic-action-resolve'}) + '</li>' : '') + '<li class="ic-action-like"></li><li class="ic-date">' + Confluence.Templates.IC.timeLink({time: opt_data.lastModificationDate, commentUrl: opt_data.commentDateUrl}) + '</li></ul></div>' : '');
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.renderActions.soyTemplateName = 'Confluence.Templates.IC.renderActions';
+}
+
+
+Confluence.Templates.IC.resolvedMask = function(opt_data, opt_ignored) {
+  return '<div class="ic-resolved-mask"><div class="ic-resolved-mask-content"><h2 class="ic-resolved-icon">' + aui.icons.icon({useIconFont: true, size: 'large', icon: 'success', extraClasses: 'line'}) + soy.$$escapeHtml('Resolved') + '</h2></div><div class="resolved-message-container"><div class="resolved-message-sideline"><p>' + soy.$$escapeHtml('This comment isn\x27t gone forever! You can see resolved comments at any time.') + '</p>' + aui.buttons.button({text: 'Show me', type: 'link', id: 'show-resolved-comments'}) + '</div></div></div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.resolvedMask.soyTemplateName = 'Confluence.Templates.IC.resolvedMask';
+}
+
+
+Confluence.Templates.IC.pageComment = function(opt_data, opt_ignored) {
+  return '<div class="ic-comment-container">' + Confluence.Templates.IC.sidebarHeading({createComment: false, showMenu: false}) + '<div class="ic-page-comment-view"><div class="ic-page-comment"><div class="ic-page-comment-content"><h2 class="ic-resolved-icon">' + aui.icons.icon({useIconFont: true, size: 'large', icon: 'success', extraClasses: 'line'}) + soy.$$escapeHtml('Saved') + '</h2></div><div class="ic-page-comment-message-container"><div class="ic-page-comment-message-sideline"><p>' + soy.$$escapeHtml('Your comment has been saved as a page comment.') + '</p><button id="show-page-comment" class="aui-button aui-button-link" data-comment-id="' + soy.$$escapeHtml(opt_data.commentId) + '">' + soy.$$escapeHtml('Show me') + '</button></div></div></div></div></div>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.pageComment.soyTemplateName = 'Confluence.Templates.IC.pageComment';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:display-comment-view', location = 'view/display-comment/display-comment.js' */
+define("confluence/ic/view/display-comment","jquery ajs underscore backbone confluence/ic/util/utils confluence/ic/view/create-comment confluence/ic/view/confirm-dialog confluence/ic/view/reply-list confluence/ic/view/resolved-dialog-discovery confluence/ic/view/navigation confluence/ic/view/likes".split(" "),function(f,c,g,d,e,h,k,l,m,n,p){return d.View.extend({tagName:"div",className:"ic-display-comment-view",template:Confluence.Templates.IC.displayComment,events:{"click .ic-action-reply":"replyComment",
+"click .ic-action-resolve":"resolveComment","click .ic-action-edit":"editComment","click .ic-action-delete":"confirm","click #show-resolved-comments":"showResolvedDialogDiscovery","click .ic-reply-placeholder .textarea":"replyComment","focus .ic-reply-container .textarea":"onReplyPlaceholderFocus","keyup .ic-reply-container .textarea":"onReplyPlaceholderType"},initialize:function(a){g.bindAll(this,"confirm","destroy","deleteFail","replyComment","resolveComment","editComment","renderCommentOnly");
+this.model.set("active",!0);this.listenTo(this.model,"change:resolveProperties",this.render);if(9>parseInt(c.version)){var b=f("body");b.on("click",".ic-action-delete a",this.confirm);b.on("click",".ic-action-reply a",this.replyComment);b.on("click",".ic-action-resolve a",this.resolveComment);b.on("click",".ic-action-edit a",this.editComment)}this.replyListView=new l({commentModel:this.model,source:a.source})},render:function(){this.$el.html(this.template(g.extend(this.model.toJSON(),{showMenu:"READ_WRITE"===
+c.Meta.get("render-mode"),currentAuthorUserName:c.Meta.get("remote-user"),currentAuthorAvatarUrl:e.getAuthorAvatarUrl(),currentAuthorDisplayName:e.getAuthorDisplayName(),darkFeatures:e.getDarkFeatures()})));this.model.isResolved()?this.$(".ic-comment-container").addClass("ic-resolved"):this.$(".ic-list").append(this.replyListView.render().el);this._renderNavigation();this._renderLikes();e.addSidebarHeadingTooltip(this);return this},_renderNavigation:function(){this.navigationView&&this.navigationView.remove();
+this.navigationView=new n({model:this.model});this.navigationView.render();this.$("#ic-nav-container").html(this.navigationView.el)},_renderLikes:function(){this.likesView&&this.likesView.remove();this.likesView=(new p({contentId:this.model.id})).render();this.likesView.$el.is(":empty")?this.$(".ic-action-like").remove():this.$(".ic-action-like").html(this.likesView.el)},editComment:function(a){a.preventDefault();var b=this;this.editView?this.editView.focusEditor():e.confirmProcess()&&e.getEditorFormat(this.model.get("id")).done(function(q){b.editView=
+new h({model:b.model,type:"edit",selection:{},onFinished:b.renderCommentOnly,commentText:q});b.$(".ic-display-comment").html(b.editView.$el);b.editView.render()}).fail(function(){d.trigger("ic:error","We can\u0027t edit this comment. The comment might have been deleted.")})},renderCommentOnly:function(){this.editView&&this.editView.destroy();this.editView=null;var a=g.extend(this.model.toJSON(),{darkFeatures:e.getDarkFeatures()});this.$(".ic-display-comment").html(f(Confluence.Templates.IC.comment(a)).children());
+this._renderLikes()},replyComment:function(a){a&&a.preventDefault();this.createReplyView?this.createReplyView.focusEditor():e.confirmProcess()?(this.createReplyView=new h({model:this.model,type:"reply",onFinished:g.bind(function(){this.createReplyView&&this.createReplyView.destroy();this.createReplyView=null},this)}),this.$(".ic-reply-container").prepend(this.createReplyView.$el),this.createReplyView.render()):a&&a.currentTarget.blur()},confirm:function(a){a.preventDefault();a.stopImmediatePropagation();
+if(0<this.model.replies.length)return d.trigger("ic:error","You can\u0027t delete inline comment threads with replies."),!1;a=new k({model:new d.Model({label:"Delete",message:"Are you sure you want to delete the comment?"}),$menuEl:f(".ic-action-menu"),$bodyEl:f("body")});this.$(".ic-sidebar-heading").append(a.$el);this.listenTo(a,"ic:confirm",this.deleteComment)},deleteComment:function(){var a=g.bind(function(){this.$el.html(Confluence.Templates.IC.deleteComment());
+this.model.set("deleted",!0);this._renderNavigation();e.removeInlineLinksDialog(this.model.highlights);e.addSidebarHeadingTooltip(this);d.trigger("ic:delete")},this);this.model.destroy({wait:!0,success:a,error:this.deleteFail})},deleteFail:function(a,b){switch(b.status){case 401:d.trigger("ic:error","You don\u0027t have permission to delete this comment.");break;case 405:b.responseText?"READ_ONLY"===JSON.parse(b.responseText).reason&&d.trigger("ic:error","This site is read-only. You can\u0027t make changes right now."):
+d.trigger("ic:error","Could not complete your request.");break;case 409:d.trigger("ic:error",b.responseText);break;default:d.trigger("ic:error","Could not complete your request.")}},destroy:function(a){if(9>parseInt(c.version)){var b=f("body");b.off("click",".ic-action-delete a",this.confirm);b.off("click",".ic-action-reply a",this.replyComment);b.off("click",".ic-action-resolve a",this.resolveComment);b.off("click",".ic-action-edit a",this.editComment)}this.createReplyView&&
+this.createReplyView.destroy();this.editView&&this.editView.destroy();this.replyListView.destroy();this.navigationView&&this.navigationView.remove();this.likesView&&this.likesView.remove();!0!==a&&this.remove()},resolveComment:function(a){a&&a.preventDefault();e.confirmProcess(!0)&&this.model.resolve(!0,{wait:!0,success:g.bind(this.onResolveComplete,this),error:this.onResolveFail})},onResolveComplete:function(){this.createReplyView&&this.createReplyView.destroy();this.createReplyView=null;d.trigger("ic:resolved");
+e.removeInlineLinksDialog(this.model.highlights)},onResolveFail:function(a,b){switch(b.status){case 401:d.trigger("ic:error","You don\u0027t have permission to resolve this comment.");break;case 405:if(b.responseText&&"READ_ONLY"===JSON.parse(b.responseText).reason){d.trigger("ic:error","This site is read-only. You can\u0027t make changes right now.");break}default:d.trigger("ic:error","Could not complete your request.")}},showResolvedDialogDiscovery:function(){(new m).show();d.trigger("ic:resolved:show:recovery")},
+onReplyPlaceholderFocus:function(a){if(e.getDarkFeatures().RICH_TEXT_EDITOR){var b=-1!==navigator.userAgent.indexOf("Safari")&&-1===navigator.userAgent.indexOf("Chrome");("READ_ONLY"===c.Meta.get("access-mode")||b)&&a.currentTarget.blur()}},onReplyPlaceholderType:function(a){"READ_ONLY"===c.Meta.get("access-mode")&&(a=f(a.currentTarget),a.val(""),a.blur())}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:resolved-comment-view', location = 'view/resolved-comment/resolved-comment-list.soy' */
+// This file was automatically generated from resolved-comment-list.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.resolvedCommentDialog = function(opt_data, opt_ignored) {
+  return '' + aui.dialog.dialog2({id: 'ic-resolved-comment-dialog', removeOnHide: true, extraClasses: 'ic-resolved-comment-dialog-content', modal: true, titleText: 'Resolved comments', footerActionContent: '' + aui.buttons.button({id: 'resolved-dialog-close-button', text: 'Close', type: 'link'}), content: '<!-- Placeholder for error message --><div id="ic-resolved-comment-dialog-error"></div>'});
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.resolvedCommentDialog.soyTemplateName = 'Confluence.Templates.IC.resolvedCommentDialog';
+}
+
+
+Confluence.Templates.IC.resolvedDiscovery = function(opt_data, opt_ignored) {
+  return '<p>' + soy.$$escapeHtml('Got more to say? You can reopen resolved comments to continue the discussion.') + '</p>' + aui.buttons.button({id: 'ic-resolved-discovery-dismiss', text: 'OK, got it', type: 'link'});
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.resolvedDiscovery.soyTemplateName = 'Confluence.Templates.IC.resolvedDiscovery';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:resolved-comment-view', location = 'view/resolved-comment/resolved-comment.js' */
+define("confluence/ic/view/resolved-comment-item","jquery underscore ajs backbone confluence/ic/util/utils confluence/ic/view/reply-list confluence/ic/view/likes".split(" "),function(k,e,c,b,f,g,h){return b.View.extend({tagName:"div",className:"ic-display-comment-view",template:Confluence.Templates.IC.comment,events:{"click .ic-action-unresolve":"unresolveComment","click .ic-action-show-reply":"showReply"},initialize:function(){e.bindAll(this,"onUnresolveComplete","destroy");this.replyListView=new g({commentModel:this.model});
+this.listenTo(this.replyListView,"ic:reply-rendered",function(){this.renderNumberOfReplies()})},render:function(){var a=this.template(e.extend(this.model.toJSON(),{showMenu:!1,isDangling:this.model.isDangling(),darkFeatures:f.getDarkFeatures(),hasReply:0<this.model.replies.length}));this.$el.html(a);this.likesView&&this.likesView.remove();this.likesView=(new h({contentId:this.model.id,showLikeButton:!1})).render();this.$(".ic-action-like").html(this.likesView.el);this.$el.append(this.replyListView.$el.hide());
+this.replyListView.render();return this},unresolveComment:function(){b.trigger("ic:resolvedClearError");this.model.resolve(!1,{wait:!0,success:this.onUnresolveComplete,error:this.onUnresolveFail})},onUnresolveComplete:function(){b.trigger("ic:unresolved");this.$el.slideUp(this.destroy)},onUnresolveFail:function(a,d){switch(d.status){case 401:b.trigger("ic:resolvedError","You don\u0027t have permission to resolve this comment.");break;case 405:"READ_ONLY"===JSON.parse(d.responseText).reason?b.trigger("ic:resolvedError",
+"This site is read-only. You can\u0027t make changes right now."):b.trigger("ic:resolvedError","Could not complete your request.");break;default:b.trigger("ic:resolvedError","Could not complete your request.")}},showReply:function(){this.$(".ic-action-show-reply").parent().remove();this.$(".ic-replies").slideDown()},renderNumberOfReplies:function(){var a=this.model.replies.length,d=this.$(".ic-action-show-reply");0<a?(a=1===a?c.format("{0} reply",
+1):c.format("{0} replies",a),d.text(a),d.parent().removeClass("hidden")):d.parent().remove()},destroy:function(){this.replyListView.destroy();this.remove()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:resolved-comment-view', location = 'view/resolved-comment/resolved-comment-list.js' */
+define("confluence/ic/view/resolved-comment-list",["jquery","underscore","backbone","ajs","confluence/ic/view/resolved-comment-item"],function(c,f,d,b,h){return d.View.extend({events:{"click #resolved-dialog-close-button":"destroy"},template:Confluence.Templates.IC.resolvedCommentDialog,initialize:function(){f.bindAll(this,"render","destroy","_onKeyDown");this._resolvedCommentViews=[];this.listenTo(this.collection,"change:resolveProperties",this.onResolvedChanged);this.listenTo(d,"ic:resolvedError",
+this.displayError);this.listenTo(d,"ic:resolvedClearError",this.clearErrors);var a=c(this.template());this.setElement(a);this.dialog=b.dialog2(this.$el);c(document).bind("keydown",this._onKeyDown);b.trigger("remove-bindings.keyboardshortcuts")},render:function(){var a=c("\x3cdiv\x3e"),g=this.collection.getResolvedCount();0!==g?f.each(this.collection.getResolvedCommentsDesc(),function(e){e=new h({model:e});this._resolvedCommentViews.push(e);a.append(e.render().$el)},this):this.displayNoCommentMessage();
+this.$(".aui-dialog2-content").append(a);this.dialog.show();this.options.focusCommentId&&this.scrollToComment(this.options.focusCommentId);d.trigger("ic:resolved:view",g);b.trigger("ic-jim-async-supported");return this},onResolvedChanged:function(){0===this.collection.getResolvedCount()&&this.displayNoCommentMessage()},displayNoCommentMessage:function(){b.messages.generic(this.$(".aui-dialog2-content"),{body:"There are no resolved comments on this page.",closeable:!1})},displayError:function(a){this.clearErrors();
+b.messages.error(this.$("#ic-resolved-comment-dialog-error"),{body:a,closeable:!1})},clearErrors:function(){this.$("#ic-resolved-comment-dialog-error").empty()},scrollToComment:function(a){a=this.$(b.format("[data-comment-id\x3d{0}]",a));return a.length?(a.addClass("focused"),this.$(".aui-dialog2-content").animate({scrollTop:a.parent().position().top},100)):(new c.Deferred).reject()},_onKeyDown:function(a){this.$el&&this.$el.is(":visible")&&a.keyCode===b.keyCode.ESCAPE&&this.destroy()},destroy:function(){b.trigger("add-bindings.keyboardshortcuts");
+c(document).unbind("keydown",this._onKeyDown);this.dialog.hide();this.dialog.remove();f.each(this._resolvedCommentViews,function(a){a.destroy()});this._resolvedCommentViews=null;this.remove()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:resolved-comment-view', location = 'view/resolved-comment/resolved-dialog-discovery.js' */
+define("confluence/ic/view/resolved-dialog-discovery",["jquery","underscore","backbone","ajs"],function(b,e,d,f){return d.View.extend({DIALOG_BACKGROUND_COLOR:"#ffffff",DIALOG_BORDER_COLOR:"#f79232",initialize:function(){e.bindAll(this,"getDiscoveryDialogContent","destroy","onEndScroll")},template:Confluence.Templates.IC.resolvedDiscovery,show:function(){b.when(this.scrollTop()).done(this.onEndScroll)},onEndScroll:function(){this.showToolsMenu();this._discoveryDialog=this.createDiscoveryDialog();
+this._discoveryDialog.show()},showToolsMenu:function(){var a=b("#action-menu");a.on("aui-dropdown2-hide",this.destroy);b("#action-menu-link").trigger("aui-button-invoke");a.find("a.active").removeClass("active");var c=a.find("#view-resolved-comments").addClass("active");setTimeout(function(){c.focus()})},createDiscoveryDialog:function(){var a={gravity:"w",hideCallback:this.destroy,width:280,noBind:!0};a=f.InlineDialog(b("#view-resolved-comments"),"ic-resolved-dialog-discovery",this.getDiscoveryDialogContent,
+a);a.on("click focusin mousedown",function(c){c.stopPropagation()});return a},getDiscoveryDialogContent:function(a,c,g){c=this.template();a.html(c);var h=this;a.find("#ic-resolved-discovery-dismiss").on("click",function(){d.trigger("ic:resolved:dismiss:recovery");h._discoveryDialog.hide()});g();return!1},scrollTop:function(){var a=b("#splitter-content");a=a.length?a:b("html, body");var c=0===a.scrollTop()?1:300;return a.animate({scrollTop:0},c)},destroy:function(){var a=b("#action-menu");a.off("aui-dropdown2-hide");
+a.is(":visible")&&b("#action-menu-link").trigger("aui-button-invoke");this._discoveryDialog.remove();this.remove()}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:highlight-view', location = 'view/highlight-text/highlight-text.js' */
+define("confluence/ic/view/highlight-text",["backbone","ajs","confluence/ic/util/text-highlighter","confluence/ic/util/utils"],function(d,e,f,g){return d.View.extend({el:"#content .wiki-content:first",events:{"click .inline-comment-marker.valid":"commentClick"},initialize:function(){this.collection&&(this.listenTo(this.collection,"sync remove change:deleted",this.render),this.listenTo(this.collection,"change:active",this.setActive));this.listenTo(d,"ic:view ic:overlap ic:sidebar-hidden",this.clearSelection);
+this.listenTo(d,"ic:persist",this.persistComment);this.listenTo(d,"ic:delete",this.render);e.bind("qr:add-new-highlight-text",this._addQuickReloadMarker)},render:function(){this.inlineLinks=[];this.$(".inline-comment-marker").removeClass("valid");this.collection.each(function(a){a.isResolved()||a.get("deleted")||!a.highlights||(a.highlights.addClass("valid"),this._pushToInlineLinks(a.highlights))},this);this._setupLinkDialog()},_pushToInlineLinks:function(a){var b=this;a.each(function(){g.getInlineLinks(this).each(function(){$(this).attr("href")&&
+b.inlineLinks.push($(this))})})},_setupLinkDialog:function(){var a={width:200,onHover:!0,noBind:!0,calculatePositions:this._calculatePositions,hideDelay:1E3};$(this.inlineLinks).each(function(){var b=this;e.InlineDialog(b,"inline-comment-link",function(c,k,h){c.addClass("inline-comment-link");c.html(Confluence.Templates.IC.highlightTextLink({link:b.attr("href")}));h();return!1},a)})},_calculatePositions:function(a,b,c){return{displayAbove:!0,popupCss:{top:b.target.offset().top-a.height()-10,left:c.x-
+a.width()/2},arrowCss:{top:a.height(),left:a.width()/2-4}}},setActive:function(a){this.$(".inline-comment-marker").removeClass("active");var b=this.$('.inline-comment-marker[data-ref\x3d"'+a.get("markerRef")+'"]');a.get("active")&&b.length&&b.addClass("active")},commentClick:function(a){a.preventDefault();var b=this.$(a.currentTarget);b.hasClass("active")?d.trigger("ic:hide-sidebar",a,!0):this.displayComment(b)},displayComment:function(a,b){a=a.data("ref");a=this.collection.findWhere({markerRef:a});
+d.trigger("ic:view",a,b)},clearSelection:function(){(new f).removeHighlight()},persistComment:function(a){this.$(".ic-current-selection").removeClass("ic-current-selection").addClass("inline-comment-marker").attr("data-ref",a.get("markerRef"));this.collection.add(a)},_addQuickReloadMarker:function(a,b,c){a=b.comment;this.$('.inline-comment-marker[data-ref\x3d"'+a.dataRef+'"]').length?c.resolve(b):(new f).deserializeHighlights(a.serializedHighlights,a.dataRef)?c.resolve(b):c.reject(b)}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:highlight-view', location = 'view/highlight-text/highlight-text.soy' */
+// This file was automatically generated from highlight-text.soy.
+// Please don't edit this file by hand.
+
+/**
+ * @fileoverview Templates in namespace Confluence.Templates.IC.
+ */
+
+if (typeof Confluence == 'undefined') { var Confluence = {}; }
+if (typeof Confluence.Templates == 'undefined') { Confluence.Templates = {}; }
+if (typeof Confluence.Templates.IC == 'undefined') { Confluence.Templates.IC = {}; }
+
+
+Confluence.Templates.IC.highlightTextLink = function(opt_data, opt_ignored) {
+  return aui.icons.icon({useIconFont: true, size: 'small', icon: 'link'}) + '<a href=\'' + soy.$$escapeHtml(opt_data.link) + '\'>' + soy.$$escapeHtml(opt_data.link) + '</a>';
+};
+if (goog.DEBUG) {
+  Confluence.Templates.IC.highlightTextLink.soyTemplateName = 'Confluence.Templates.IC.highlightTextLink';
+}
+
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:sidebar-view', location = 'view/sidebar/sidebar.js' */
+define("confluence/ic/view/sidebar","underscore backbone jquery confluence/ic/view/display-comment confluence/ic/view/create-comment confluence/ic/util/utils ajs".split(" "),function(h,k,g,m,n,c,l){return k.View.extend({tagName:"div",className:"ic-sidebar",events:{"click button.ic-action-hide":function(a){this.hide(a,!0);k.trigger("ic:sidebar:close")}},initialize:function(a){var b=this;this.listenTo(k,"ic:view ic:overlap",this.displayComment);this.listenTo(k,"ic:create",this.displayCreateComment);
+this.listenTo(k,"ic:error",this.displayError);this.listenTo(k,"ic:hide-sidebar",this.hide);this.listenTo(k,"ic:clearError",this.clearError);c.getDarkFeatures().RICH_TEXT_EDITOR?l.bind("rte-quick-edit-ready",function(){var d=b.$el.find("#wysiwygTextarea_ifr");0!==d.length?((new MutationObserver(function(){d.resize()})).observe(d[0],{attributes:!0,attributeFilter:["style"]}),l.Rte.getEditor().getContent()||b._scrollToEditorView(d)):b.$el.is(":visible")||(c.getPageContainer().css("padding-right","0"),
+b.$wikiContent.css("position","static"),c.getPageContainer().css({"min-height":0}))}):l.bind("init.rte",h.bind(this.hideInEditMode,this));this.defaultNavOffset=130;this.defaultPermalinkedCommentOffset=100;this.$wikiContent=a.$wikiContent||g("#content .wiki-content").first();this.sidebarObserver=new MutationObserver(h.bind(this.setSidebarYPos,this));this.sidebarObserver.observe(this.el,{childList:!0,subtree:!0});g(window).resize(h.debounce(h.bind(this.setSidebarYPos,this),100));l.bind("sidebar.expanded sidebar.collapsed",
+h.debounce(h.bind(this.setSidebarYPos,this),50))},displayComment:function(a,b,d){var f=function(){if(a.highlight.is(":hidden")&&(c.showHighlightContent(a.highlight),a.highlight.is(":hidden")))return;this.distanceToTop=this.previousHighlightOffset||this.defaultNavOffset;this._emptySidebar(!0);this.commentView=new m({model:a,source:b});this.show(!0);var e=a.highlight;for(this.previousHighlightOffset=e.position().top;e.offsetParent().hasClass("conf-macro output-block");)e=e.offsetParent(),this.previousHighlightOffset+=
+e.position().top;e=this.commentView.render().$el;e.css("visibility","hidden");"nav"===b?this._scrollToComment(a):"permalink"===b?this._scrollToPermalinkedComment(a,this.defaultPermalinkedCommentOffset,d):"quickreload"===b&&this._scrollToQuickReloadComment(a);this.$el.html(e);Confluence.Binder&&Confluence.Binder.userHover()};void 0===d||!1===d.ignoreConfirmDialog?c.confirmProcess(!0)&&f.call(this):f.call(this);l.trigger("ic-jim-async-supported")},_scrollToQuickReloadComment:function(a){var b=g(".qr-feedback:first"),
+d=this.defaultPermalinkedCommentOffset;0<b.length&&(d=b.height()+67);this._scrollToPermalinkedComment(a,d)},_scrollToEditorView:function(a){var b=c.isDocTheme()?c.getSplitterContent():g("body, html"),d=this.$(".ic-display-comment-view").position().top;a=a.closest(".ic-create-comment-view").position().top+d;(b.height()<a||b.scrollTop()>a)&&b.animate({scrollTop:a},100)},_scrollToPermalinkedComment:function(a,b,d){c.isDocTheme()?(a=a.highlight.offset().top+c.getSplitterContent().scrollTop()-40,c.getSplitterContent().animate({scrollTop:a-
+b},100).promise().done(h.bind(this._scrollToPermalinkedCommentCompleted,this,d))):(a=a.highlight.offset().top,g("html, body").animate({scrollTop:a-b},100).promise().done(h.bind(this._scrollToPermalinkedCommentCompleted,this,d)))},_scrollToPermalinkedCommentCompleted:function(a){a&&a.isReplyComment&&this.commentView.replyComment()},_scrollToComment:function(a){a=a.highlight;for(var b=a.position().top;a.offsetParent().hasClass("conf-macro output-block");)a=a.offsetParent(),b+=a.position().top;c.isDocTheme()?
+c.getSplitterContent().animate({scrollTop:c.getSplitterContent().scrollTop()+b-this.distanceToTop},100):g("html, body").animate({scrollTop:window.pageYOffset+b-this.distanceToTop},100)},displayCreateComment:function(a,b,d){var f=this.warningData(),e=null===f;this._emptySidebar(!0);this.createCommentView=new n({collection:a,selection:b,type:e?"topLevel":"pageComment",warningData:f,isFocus:!1,stopFocus:!0,commentText:e?"":"\x3cblockquote\x3e"+l.escapeHtml(b.text)+"\x3c/blockquote\x3e \x3cdiv\x3e\x3c/div\x3e",
+onFinished:h.bind(function(){this.createCommentView.keepSidebar||this.isShowing&&this.hide()},this),serializedHighlights:d});this.show();this.createCommentView.$el.css("visibility","hidden");this.$el.html(this.createCommentView.$el);this.createCommentView.render()},warningData:function(){var a=g(".ic-current-selection"),b=c.containsUnsupportedMacro(a);return b?{type:"unsupportedMacro",macro:b}:c.containsInternalLink(a)?{type:"internalLink"}:c.containsUserMention(a)?{type:"mention"}:c.containsDateLozenge(a)?
+{type:"dateLozenge"}:null},displayError:function(a,b){b=h.extend({closeable:!1},b);this.clearError();l.messages.error(".ic-error",{body:a,closeable:b.closeable});b.callback&&b.callback()},clearError:function(){g(".ic-error").empty()},show:function(a){this.isShowing||(this._toggleSidebar(a),this.isShowing=!0)},hideInEditMode:function(a){"comment"!==l.Meta.get("content-type")&&(this.sidebarObserver.disconnect(),this.hide(a))},hide:function(a,b){a&&a.preventDefault();c.confirmProcess(!0)&&this.isShowing&&
+(c.getPageContainer().css({"min-height":"initial"}),this._toggleSidebar(b),k.trigger("ic:sidebar-hidden"),this.isShowing=!1)},_toggleSidebar:function(a){var b=g(".inline-comment-marker.active:first, .ic-current-selection:first"),d,f=c.isDocTheme()?c.getSplitterContent().scrollTop():window.pageYOffset;0<b.length&&(d=b.offset().top-f);f=g.Deferred();var e=f.promise();this.isShowing?a&&c.isAnimationSupported()?e=c.animateSidebar(this,!1):(c.getPageContainer().css("padding-right","0"),this.$wikiContent.css("position",
+"static"),this._emptySidebar(),f.resolve()):(c.getPageContainer().css("padding-right","280px"),a&&c.isAnimationSupported()?e=c.animateSidebar(this,!0):f.resolve(),this.$wikiContent.css("position","relative"));e.done(function(){c.scrollToCommentAfterToggleSideBar(d,b)})},_emptySidebar:function(a){this.commentView&&(this.commentView.model.unset&&this.commentView.model.unset("active"),this.commentView.destroy(),this.commentView=null);this.createCommentView&&(this.createCommentView.keepSidebar=a,this.createCommentView.destroy(),
+this.createCommentView=null)},setSidebarYPos:function(){if(this.isShowing){var a=this.$el.offset().top;if(null!=this.commentView){var b=this.commentView.$el;var d=this.commentView.model.highlight}else if(null!=this.createCommentView)b=this.createCommentView.$el,d=g(".ic-current-selection");else return;if(d){var f=this.$(".ic-sidebar-heading").height();b.css({visibility:"visible",position:"absolute",top:d.offset().top-a-f+"px"});c.recalculateContentHeight(b)}}}})});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:loader', location = '/app/loader.js' */
+define("confluence/ic/app/loader","jquery backbone ajs confluence/ic/model/comment confluence/ic/model/comment-collection confluence/ic/view/highlight-text confluence/ic/view/sidebar confluence/ic/view/resolved-comment-list confluence/ic/util/text-highlighter confluence/ic/util/utils confluence/ic/analytics confluence/ic/likes/likes-manager".split(" "),function(e,f,g,p,q,k,l,h,m,d,r,n){var c=null;return{init:function(a){c=a;a=new l({$wikiContent:e("#content .wiki-content").first()});d.getPageContainer().append(a.$el);
+(new k({collection:c})).render();Confluence&&Confluence.Likes&&Confluence.Likes.getLikesCache&&Confluence.Likes.getLikesCache().done(function(b){n.init(b);f.trigger("ic:likes-received")});d.getDarkFeatures()},loadSidebarOnClick:function(a){if(d.confirmProcess()){f.trigger("ic:highlight-panel-click");e(".inline-comment-marker").removeClass("active");var b=d.overlappedSelection(a,c);b?(a=e('.inline-comment-marker[data-ref\x3d"'+b.get("markerRef")+'"]'),Confluence.HighlightAction.clearTextSelection(),
+b.highlight=a,f.trigger("ic:overlap",b)):(b=(new m).removeHighlight().highlight(a.range),f.trigger("ic:create",c,a,b))}},updateResolvedCommentCountInToolsMenu:function(){e("#view-resolved-comments\x3espan").text("Resolved comments"+g.format(" ({0})",c.getResolvedCount()))},afterSyncCommentCollection:function(){var a=this;c.once("sync",function(b){a.displayPermalinkedComment(b)});c.on("change:resolveProperties",function(){a.updateResolvedCommentCountInToolsMenu()});
+this.updateResolvedCommentCountInToolsMenu()},displayPermalinkedComment:function(a){d.showFocusedComment(a,window.location.search,h)},createResolvedCommentListView:function(){(new h({collection:c})).render()}}});
+}catch(e){WRMCB(e)};
+;
+try {
+/* module-key = 'com.atlassian.confluence.plugins.confluence-inline-comments:library', location = 'lib/jquery.textHighlighter.js' */
+/*
+ jQuery Text Highlighter
+ Copyright (C) 2011 - 2013 by mirz
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+(function(e,A,v,r){function t(a,d){this.context=a;this.$context=e(a);this.options=e.extend({},e[m.name].defaults,d);this.init()}var m={name:"textHighlighter"};t.prototype={init:function(){this.$context.addClass(this.options.contextClass);this.bindEvents()},destroy:function(){this.unbindEvents();this.$context.removeClass(this.options.contextClass);this.$context.removeData(m.name)},bindEvents:function(){},unbindEvents:function(){},highlightHandler:function(a){a.data.self.doHighlight()},doHighlight:function(a){var d=
+a||this.getCurrentRange();if(d&&!d.collapsed){a=d.toString();var g="";1==this.options.onBeforeHighlight(d)&&(g=e.textHighlighter.createWrapper(this.options),d=this.highlightRange(d,g),g=this.normalizeHighlights(d),this.options.onAfterHighlight(g,a));this.removeAllRanges();return g}},getCurrentRange:function(){var a=this.getCurrentSelection(),d;0<a.rangeCount&&(d=a.getRangeAt(0));return d},removeAllRanges:function(){this.getCurrentSelection().removeAllRanges()},getCurrentSelection:function(){var a=
+this.getCurrentWindow(),d;a.getSelection?d=a.getSelection():e("iframe").length?e("iframe",top.document).each(function(){if(this.contentWindow===a)return d=rangy.getIframeSelection(this),!1}):d=rangy.getSelection();return d},getCurrentWindow:function(){var a=this.getCurrentDocument();return a.defaultView?a.defaultView:a.parentWindow},getCurrentDocument:function(){return this.context.ownerDocument?this.context.ownerDocument:this.context},highlightRange:function(a,d){if(!a.collapsed){var g="SCRIPT STYLE SELECT BUTTON OBJECT APPLET".split(" "),
+b=a.startContainer,c=a.endContainer,h=a.commonAncestorContainer,f=!0;if(0==a.endOffset){for(;!c.previousSibling&&c.parentNode!=h;)c=c.parentNode;c=c.previousSibling}else 3==c.nodeType?a.endOffset<c.nodeValue.length&&c.splitText(a.endOffset):0<a.endOffset&&(c=c.childNodes.item(a.endOffset-1));3==b.nodeType?a.startOffset==b.nodeValue.length?f=!1:0<a.startOffset&&(b=b.splitText(a.startOffset),c==b.previousSibling&&(c=b)):b=a.startOffset<b.childNodes.length?b.childNodes.item(a.startOffset):b.nextSibling;
+a=!1;h=[];do{if(f&&3==b.nodeType){if(/\S/.test(b.nodeValue)){f=d.clone(!0).get(0);var k=b.parentNode;if(e.contains(this.context,k)||k===this.context)f=e(b).wrap(f).parent().get(0),h.push(f)}f=!1}b!=c||c.hasChildNodes()&&f||(a=!0);-1!=e.inArray(b.tagName,g)&&(f=!1);f&&b.hasChildNodes()?b=b.firstChild:null!=b.nextSibling?(b=b.nextSibling,f=!0):(b=b.parentNode,f=!1)}while(!a);return h}},normalizeHighlights:function(a){this.flattenNestedHighlights(a);this.mergeSiblingHighlights(a);return e.map(a,function(d){return"undefined"!=
+typeof d.parentElement?null!=d.parentElement?d:null:null!=d.parentNode?d:null})},flattenNestedHighlights:function(a){var d=this;e.each(a,function(g){var b=e(this),c=b.parent(),h=c.prev(),f=c.next();d.isHighlight(c)&&(c.css("background-color")!=b.css("background-color")?(d.isHighlight(h)&&!b.get(0).previousSibling&&h.css("background-color")!=c.css("background-color")&&h.css("background-color")==b.css("background-color")&&b.insertAfter(h),d.isHighlight(f)&&!b.get(0).nextSibling&&f.css("background-color")!=
+c.css("background-color")&&f.css("background-color")==b.css("background-color")&&b.insertBefore(f),c.is(":empty")&&c.remove()):(b=v.createTextNode(c.text()),c.empty(),c.append(b),e(a[g]).remove()))})},mergeSiblingHighlights:function(a){function d(b,c){return c&&1==c.nodeType&&e(b).css("background-color")==e(c).css("background-color")&&e(c).hasClass(g.options.highlightedClass)?!0:!1}var g=this;e.each(a,function(){var b=this.previousSibling,c=this.nextSibling;if(d(this,b)){var h=e(b).text()+e(this).text();
+e(this).text(h);e(b).remove()}d(this,c)&&(h=e(this).text()+e(c).text(),e(this).text(h),e(c).remove())})},setColor:function(a){this.options.color=a},getColor:function(){return this.options.color},removeHighlights:function(a){var d=this;this.getAllHighlights(a!==r?a:this.context,!0).each(function(){1==d.options.onRemoveHighlight(this)&&e(this).contents().unwrap().get(0)})},getAllHighlights:function(a,d){var g="."+this.options.highlightedClass;g=e(a).find(g);1==d&&e(a).hasClass(this.options.highlightedClass)&&
+(g=g.add(a));return g},isHighlight:function(a){return a.hasClass(this.options.highlightedClass)},serializeHighlights:function(a){a=a||this.getAllHighlights(this.context);var d=this.context,g=[];a.each(function(b,c){b=0;var h=c.firstChild.length,f=c,k=[];do{var q=e.inArray(f,f.parentNode.childNodes);k.unshift(q);f=f.parentNode}while(f!==d);e(c).clone().empty().get(0);c.previousSibling&&3===c.previousSibling.nodeType&&(b=c.previousSibling.length);g.push([e(c).text(),k.join(":"),b,h])});return JSON.stringify(g)},
+deserializeHighlights:function(a,d){try{var g=JSON.parse(a)}catch(f){throw"Can't parse serialized highlights: "+f;}var b=[],c=this,h=!0;e.each(g,function(f,k){try{var q=k[0],u=k[1].split(":"),w=k[2],x=k[3],p=u.pop();k=null;for(var n=c.context;(k=u.shift())!==r;)n=n.childNodes[k];n.childNodes[p-1]&&3===n.childNodes[p-1].nodeType&&--p;var l=n.childNodes[p].splitText(w);l.splitText(x);l.nextSibling&&""==l.nextSibling.nodeValue&&l.parentNode.removeChild(l.nextSibling);l.previousSibling&&""==l.previousSibling.nodeValue&&
+l.parentNode.removeChild(l.previousSibling);if(q!==l.nodeValue)throw"Different text";var y=e(l).wrap(d).parent().get(0);b.push(y)}catch(z){return console&&console.warn&&console.warn("Can't deserialize "+f+"-th descriptor. Cause: "+z),h=!1,!0}});return h&&b}};e.fn.getHighlighter=function(){return this.data(m.name)};e.fn[m.name]=function(a){return this.each(function(){e.data(this,m.name)||e.data(this,m.name,new t(this,a))})};e.textHighlighter={createWrapper:function(a){return e("\x3cspan\x3e\x3c/span\x3e").css("backgroundColor",
+a.color).addClass(a.highlightedClass)},defaults:{color:"#ffff7b",highlightedClass:"highlighted",contextClass:"highlighter-context",onRemoveHighlight:function(){return!0},onBeforeHighlight:function(){return!0},onAfterHighlight:function(){}}}})(jQuery,window,document);
+}catch(e){WRMCB(e)};
